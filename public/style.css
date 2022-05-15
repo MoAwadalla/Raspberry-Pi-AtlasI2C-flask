@@ -1,0 +1,45 @@
+
+body {
+  padding: 20px;
+  background-color: green;
+  font-family: "Roboto", sans-serif;
+}
+
+h1 {
+  display: inline;
+  padding: 6px;
+  font-weight: bolder;
+  margin-bottom: 10px;
+}
+
+.flexcolumn {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+button {
+  width: 7em;
+  height: 1em;
+  margin-left: 10px;
+  margin-top: 10px;
+}
+
+label {
+  margin-left: 5px;
+}
+
+
+
+a:hover {
+  background-color: tomato;
+  font-weight: 700;
+}
+
+
+
+
+.hidden {
+  display: none;
+}
+

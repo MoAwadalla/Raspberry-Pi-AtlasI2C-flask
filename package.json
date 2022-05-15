@@ -1,0 +1,19 @@
+{
+  "name": "cp4-node-api-awadalla",
+  "version": "1.0.0",
+  "description": "A website for storing student GPA's on a server.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.cs.washington.edu:cse154-21au-students/cp4-node-api-awadalla.git"
+  },
+  "author": "Mohamed Awadalla",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "multer": "^1.4.3"
+  }
+}
