@@ -1,5 +1,10 @@
 "use strict";
 
+// BROADCAST USING
+// ssh -R 80:localhost:8000 localhost.run
+
+
+
 (function() {
   const MISSING_PARAM = "You must input all parameters.";
   const OTHER_ERROR =
