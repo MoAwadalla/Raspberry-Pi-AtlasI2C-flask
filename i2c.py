@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import io
+from re import L
 import sys
 import fcntl
 import time
@@ -17,35 +18,35 @@ def print_devices(device_list, device):
         else:
             print(" - " + i.get_device_info())
     #print("")
-    
+
 def get_devices():
     device = AtlasI2C()
     device_address_list = device.list_i2c_devices()
     device_list = []
-    
+
     for i in device_address_list:
         device.set_i2c_address(i)
         response = device.query("I")
         try:
-            moduletype = response.split(",")[1] 
+            moduletype = response.split(",")[1]
             response = device.query("name,?").split(",")[1]
         except IndexError:
-            print(">> WARNING: device at I2C address " + str(i) + " has not been identified as an EZO device, and will not be queried") 
+            print(">> WARNING: device at I2C address " + str(i) + " has not been identified as an EZO device, and will not be queried")
             continue
         device_list.append(AtlasI2C(address = i, moduletype = moduletype, name = response))
-    return device_list 
-       
+    return device_list
+
 def print_help_text():
     print('''
 >> Atlas Scientific I2C sample code
 >> Any commands entered are passed to the default target device via I2C except:
   - Help
       brings up this menu
-  - List 
+  - List
       lists the available I2C circuits.
       the --> indicates the target device that will receive individual commands
   - xxx:[command]
-      sends the command to the device at I2C address xxx 
+      sends the command to the device at I2C address xxx
       and sets future communications to that address
       Ex: "102:status" will send the command status to address 102
   - all:[command]
@@ -57,31 +58,37 @@ def print_help_text():
       by default it will poll every %0.2f seconds
 >> Pressing ctrl-c will stop the polling
     ''' % (AtlasI2C.LONG_TIMEOUT, AtlasI2C.LONG_TIMEOUT))
-       
+
 def main():
-    
+
     print_help_text()
-    
+
     device_list = get_devices()
-        
+
     device = device_list[0]
-    
+
     print_devices(device_list, device)
-    
+
     real_raw_input = vars(__builtins__).get('raw_input', input)
-    
+
     while True:
-    
-        user_cmd = real_raw_input(">> Enter command: ")
-        
+
+        #user_cmd = real_raw_input(">> Enter command: ")
+
+        cmd_file = open("./cmd.txt", "w+")
+
+        user_cmd = cmd_file.readline()
+        cmd_file.write("")
+        cmd_file.close()
+
         # show all the available devices
         if user_cmd.upper().strip().startswith("LIST"):
             print_devices(device_list, device)
-            
-        # print the help text 
+
+        # print the help text
         elif user_cmd.upper().startswith("HELP"):
             print_help_text()
-            
+
         # continuous polling command automatically polls the board
         elif user_cmd.upper().strip().startswith("POLL"):
             cmd_list = user_cmd.split(',')
@@ -102,17 +109,17 @@ def main():
                     time.sleep(delaytime)
                     for dev in device_list:
                         print(dev.read())
-                
+
             except KeyboardInterrupt:       # catches the ctrl-c command, which breaks the loop above
                 print("Continuous polling stopped")
                 print_devices(device_list, device)
-                
+
         # send a command to all the available devices
         elif user_cmd.upper().strip().startswith("ALL:"):
             cmd_list = user_cmd.split(":")
             for dev in device_list:
                 dev.write(cmd_list[1])
-            
+
             # figure out how long to wait before reading the response
             timeout = device_list[0].get_command_timeout(cmd_list[1].strip())
             # if we dont have a timeout, dont try to read, since it means we issued a sleep command
@@ -120,14 +127,14 @@ def main():
                 time.sleep(timeout)
                 for dev in device_list:
                     print(dev.read())
-                
+
         # if not a special keyword, see if we change the address, and communicate with that device
         else:
             try:
                 cmd_list = user_cmd.split(":")
                 if(len(cmd_list) > 1):
                     addr = cmd_list[0]
-                    
+
                     # go through the devices to figure out if its available
                     # and swith to it if it is
                     switched = False
@@ -141,10 +148,14 @@ def main():
                         print("No device found at address " + addr)
                 else:
                     # if no address change, just send the command to the device
-                    print(device.query(user_cmd))
+                    query = device.query(user_cmd)
+                    data_file = open("./data.txt", "w")
+                    data_file.write(query)
+                    data_file.close()
+                    print(query)
             except IOError:
                 print("Query failed \n - Address may be invalid, use list command to see available addresses")
 
-                    
+
 if __name__ == '__main__':
     main()
